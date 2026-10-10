@@ -102,46 +102,43 @@ wishButton.addEventListener("click", () => {
   wishButton.textContent = "A Wish Sent with Love ♥";
 });
 
-// Music button: play romantic birthday song on/off
+// Music button: play the birthday song on/off
 const musicButton = document.getElementById("musicButton");
 const birthdaySong = document.getElementById("birthdaySong");
-let audioContext;
-let oscillator;
-let volume;
+let playPending = false;
+
+function setMusicPlaying(isPlaying) {
+  musicButton.setAttribute("aria-pressed", String(isPlaying));
+  musicButton.setAttribute(
+    "aria-label",
+    isPlaying ? "Pause birthday song" : "Play birthday song"
+  );
+  musicButton.style.background = isPlaying ? "#ed42bc" : "#300d24d9";
+}
 
 musicButton.addEventListener("click", async () => {
-  if (!birthdaySong.paused) {
+  if (!birthdaySong.paused || playPending) {
+    playPending = false;
     birthdaySong.pause();
     birthdaySong.currentTime = 0;
-    musicButton.style.background = "#300d24d9";
-    if (oscillator) {
-      oscillator.stop();
-      oscillator = null;
-    }
+    setMusicPlaying(false);
     return;
   }
 
+  playPending = true;
   try {
     birthdaySong.volume = 0.8;
     await birthdaySong.play();
-    musicButton.style.background = "#ed42bc";
+    setMusicPlaying(true);
   } catch (error) {
-    console.warn("Autoplay blocked, trying ambient fallback:", error);
-  }
-
-  if (!oscillator) {
-    audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
-    await audioContext.resume();
-
-    oscillator = audioContext.createOscillator();
-    volume = audioContext.createGain();
-
-    oscillator.type = "sine";
-    oscillator.frequency.value = 174;
-    volume.gain.value = 0.012;
-
-    oscillator.connect(volume);
-    volume.connect(audioContext.destination);
-    oscillator.start();
+    if (!(error instanceof DOMException && error.name === "AbortError" && birthdaySong.paused)) {
+      setMusicPlaying(false);
+      console.error("Unable to play the birthday song:", error);
+    }
+  } finally {
+    playPending = false;
   }
 });
+
+birthdaySong.addEventListener("play", () => setMusicPlaying(true));
+birthdaySong.addEventListener("pause", () => setMusicPlaying(false));

@@ -269,7 +269,8 @@ nav a.active {
 
 .scroll-cue {
   position: absolute;
-  top: calc(100% + 70px);
+  top: auto;
+  bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
   display: grid;
@@ -628,12 +629,13 @@ footer a {
   }
 
   .hero {
-    min-height: 760px;
-    height: 100svh;
+    min-height: 100svh;
+    height: auto;
+    padding: 88px 0 96px;
   }
 
   .hero-content {
-    margin-top: 20px;
+    margin-top: 0;
   }
 
   .hero h1 {
@@ -667,7 +669,7 @@ footer a {
   }
 
   .scroll-cue {
-    top: calc(100% + 50px);
+    bottom: 16px;
   }
 
   .side-note {
